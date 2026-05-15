@@ -1,4 +1,5 @@
-// script.js
+// REPLACE old script.js with this updated version
+
 
 const hoursInput = document.getElementById("hours");
 const minutesInput = document.getElementById("minutes");
@@ -7,8 +8,74 @@ const secondsInput = document.getElementById("seconds");
 const startBtn = document.getElementById("startBtn");
 const resetBtn = document.getElementById("resetBtn");
 
+const startSound =
+  document.getElementById("startSound");
+
+const finishSound =
+  document.getElementById("finishSound");
+
 let timer;
 let isRunning = false;
+
+
+/* =========================
+   INPUT LIMITATIONS
+========================= */
+
+function validateInputs(){
+
+  // Hours max 24
+  if(parseInt(hoursInput.value) > 24){
+    hoursInput.value = 24;
+  }
+
+  // Minutes max 59
+  if(parseInt(minutesInput.value) > 59){
+    minutesInput.value = 59;
+  }
+
+  // Seconds max 59
+  if(parseInt(secondsInput.value) > 59){
+    secondsInput.value = 59;
+  }
+
+  // No negative values
+  if(parseInt(hoursInput.value) < 0){
+    hoursInput.value = 0;
+  }
+
+  if(parseInt(minutesInput.value) < 0){
+    minutesInput.value = 0;
+  }
+
+  if(parseInt(secondsInput.value) < 0){
+    secondsInput.value = 0;
+  }
+
+}
+
+
+/* Live validation */
+
+hoursInput.addEventListener(
+  "input",
+  validateInputs
+);
+
+minutesInput.addEventListener(
+  "input",
+  validateInputs
+);
+
+secondsInput.addEventListener(
+  "input",
+  validateInputs
+);
+
+
+/* =========================
+   START TIMER
+========================= */
 
 startBtn.addEventListener("click", () => {
 
@@ -23,9 +90,16 @@ startBtn.addEventListener("click", () => {
     return;
   }
 
-  let hours = parseInt(hoursInput.value) || 0;
-  let minutes = parseInt(minutesInput.value) || 0;
-  let seconds = parseInt(secondsInput.value) || 0;
+  validateInputs();
+
+  let hours =
+    parseInt(hoursInput.value) || 0;
+
+  let minutes =
+    parseInt(minutesInput.value) || 0;
+
+  let seconds =
+    parseInt(secondsInput.value) || 0;
 
   let totalSeconds =
     (hours * 3600) +
@@ -33,8 +107,12 @@ startBtn.addEventListener("click", () => {
     seconds;
 
   if(totalSeconds <= 0){
+    alert("Please set timer!");
     return;
   }
+
+  // Play start sound
+  startSound.play();
 
   isRunning = true;
 
@@ -46,157 +124,106 @@ startBtn.addEventListener("click", () => {
 
       clearInterval(timer);
 
-      startBtn.innerText = "Start";
-
       isRunning = false;
 
-      alert("Time Finished!");
+      startBtn.innerText = "Start";
+
+      // Play finish sound
+      finishSound.play();
+
+      // Visual effect
+      document.body.classList.add(
+        "timer-finished"
+      );
+
+      setTimeout(() => {
+
+        document.body.classList.remove(
+          "timer-finished"
+        );
+
+      },3000);
+
+      alert("Timer Completed!");
 
       return;
     }
 
     totalSeconds--;
 
-    let h = Math.floor(totalSeconds / 3600);
-    let m = Math.floor((totalSeconds % 3600) / 60);
+    let h = Math.floor(
+      totalSeconds / 3600
+    );
+
+    let m = Math.floor(
+      (totalSeconds % 3600) / 60
+    );
+
     let s = totalSeconds % 60;
 
-    hoursInput.value = String(h).padStart(2,"0");
-    minutesInput.value = String(m).padStart(2,"0");
-    secondsInput.value = String(s).padStart(2,"0");
+    hoursInput.value =
+      String(h).padStart(2,"0");
+
+    minutesInput.value =
+      String(m).padStart(2,"0");
+
+    secondsInput.value =
+      String(s).padStart(2,"0");
 
   },1000);
 
 });
 
 
+/* =========================
+   RESET TIMER
+========================= */
+
 resetBtn.addEventListener("click", () => {
 
   clearInterval(timer);
+
+  isRunning = false;
+
+  startBtn.innerText = "Start";
 
   hoursInput.value = "00";
   minutesInput.value = "05";
   secondsInput.value = "00";
 
-  startBtn.innerText = "Start";
-
-  isRunning = false;
-
 });
-
-
-// Add this BELOW existing JavaScript
 
 
 /* =========================
-   EXTRA BUTTONS FUNCTIONALITY
+   SHARE TIMER
 ========================= */
 
-const extraButtons = document.querySelectorAll(".extra-btn");
+const shareBtn =
+  document.getElementById("shareBtn");
 
-const fullScreenBtn = extraButtons[0];
-const editTitleBtn = extraButtons[1];
-const addMinuteBtn = extraButtons[2];
+shareBtn.addEventListener(
+  "click",
+  async () => {
 
-const title = document.querySelector("h1");
-
-
-/* FULL SCREEN */
-
-
-const timerCard = document.querySelector(".timer-card");
-
-fullScreenBtn.addEventListener("click", () => {
-
-  if(!document.fullscreenElement){
-
-    timerCard.requestFullscreen();
-
-    fullScreenBtn.innerText = "Exit Full-screen";
-
-  }else{
-
-    document.exitFullscreen();
-
-    fullScreenBtn.innerText = "Full-screen";
-  }
-
-});
-
-
-/* EDIT TITLE */
-
-editTitleBtn.addEventListener("click", () => {
-
-  let newTitle = prompt(
-    "Enter New Timer Title"
-  );
-
-  if(newTitle && newTitle.trim() !== ""){
-
-    title.innerText = newTitle;
-  }
-
-});
-
-
-/* +1 MINUTE */
-
-addMinuteBtn.addEventListener("click", () => {
-
-  let currentMinutes =
-    parseInt(minutesInput.value) || 0;
-
-  let currentHours =
-    parseInt(hoursInput.value) || 0;
-
-  currentMinutes++;
-
-  // Handle overflow
-  if(currentMinutes >= 60){
-
-    currentHours++;
-    currentMinutes = 0;
-  }
-
-  hoursInput.value =
-    String(currentHours).padStart(2,"0");
-
-  minutesInput.value =
-    String(currentMinutes).padStart(2,"0");
-
-});
-
-/* =========================
-   SHARE TIMER FUNCTIONALITY
-========================= */
-
-const shareBtn = document.getElementById("shareBtn");
-
-shareBtn.addEventListener("click", async () => {
-
-  // Current timer values
   const h = hoursInput.value;
   const m = minutesInput.value;
   const s = secondsInput.value;
 
-  // Create sharable URL
   const shareURL =
     `${window.location.origin}${window.location.pathname}?h=${h}&m=${m}&s=${s}`;
 
-  // Share API
   if(navigator.share){
 
     try{
 
       await navigator.share({
 
-        title: "Live Countdown Timer",
+        title:"Live Countdown Timer",
 
         text:
-        `Join my live countdown timer: ${h}:${m}:${s}`,
+        `Join my timer ${h}:${m}:${s}`,
 
-        url: shareURL
+        url:shareURL
 
       });
 
@@ -207,8 +234,9 @@ shareBtn.addEventListener("click", async () => {
 
   }else{
 
-    // Copy fallback
-    navigator.clipboard.writeText(shareURL);
+    navigator.clipboard.writeText(
+      shareURL
+    );
 
     alert("Timer link copied!");
   }
@@ -220,13 +248,19 @@ shareBtn.addEventListener("click", async () => {
    LOAD SHARED TIMER
 ========================= */
 
-const params = new URLSearchParams(
-  window.location.search
-);
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
 
-const sharedHours = params.get("h");
-const sharedMinutes = params.get("m");
-const sharedSeconds = params.get("s");
+const sharedHours =
+  params.get("h");
+
+const sharedMinutes =
+  params.get("m");
+
+const sharedSeconds =
+  params.get("s");
 
 if(sharedHours !== null){
 

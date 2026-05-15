@@ -558,3 +558,63 @@ button{
   background:
   linear-gradient(135deg,#3c6ea5,#25456f);
 }
+
+/* ADD this in style.css */
+
+/* Share Button */
+
+.share-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+.share-btn svg{
+  width:20px;
+  height:20px;
+}
+
+/* Hover Animation */
+
+.share-btn:hover svg{
+  transform:rotate(12deg) scale(1.1);
+  transition:.3s;
+}
+
+/* Mobile */
+
+@media(max-width:480px){
+
+  .share-btn{
+    gap:6px;
+    font-size:13px;
+  }
+
+  .share-btn svg{
+    width:16px;
+    height:16px;
+  }
+}
+
+/* Timer Finish Effect */
+
+.timer-finished{
+
+  animation:flashEffect .6s infinite;
+}
+
+@keyframes flashEffect{
+
+  0%{
+    filter:brightness(1);
+  }
+
+  50%{
+    filter:brightness(1.25);
+  }
+
+  100%{
+    filter:brightness(1);
+  }
+}
